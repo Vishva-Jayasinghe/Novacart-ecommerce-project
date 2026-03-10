@@ -18,8 +18,8 @@ The project demonstrates the full workflow of a **Data Analyst / BI Developer**:
 
 Add the ER Diagram screenshot in the project folder and reference it below.
 
-![ER Diagram](<img width="1040" height="598" alt="erd" src="https://github.com/user-attachments/assets/725db1d8-ff4b-4bbe-8e4a-514fb4d8f33e" />
-)
+<img width="1040" height="598" alt="erd" src="https://github.com/user-attachments/assets/f495b1b4-1d4f-4975-8565-94a9fc417bf5" />
+
 
 ---
 
