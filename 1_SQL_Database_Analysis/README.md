@@ -1,32 +1,16 @@
-[novacart_sql_readme.md](https://github.com/user-attachments/files/25873721/novacart_sql_readme.md)
-# Novacart E‑commerce Data Analytics Project -- SQL Analysis
+[sql_project_readme.md](https://github.com/user-attachments/files/25873747/sql_project_readme.md)
+# Novacart E-commerce Data Analytics Project -- SQL Database & Analysis
 
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue)
-![SQL](https://img.shields.io/badge/Language-SQL-green)
-![Project](https://img.shields.io/badge/Project-Data%20Analytics-orange)
+## Project Overview
 
-## Overview
+This project represents the **first phase of an end‑to‑end data
+analytics project** built using a simulated **e‑commerce business
+dataset**.\
+The focus of this phase is designing a relational database, cleaning the
+data, and preparing it for further analytics and business intelligence.
 
-This repository contains the **SQL phase of an end‑to‑end data analytics
-project** built for a fictional e‑commerce company **Novacart**.
-
-The objective of this stage is to:
-
--   Design a relational database schema
--   Perform data cleaning and validation
--   Prepare structured data for analytics and BI tools
-
-The cleaned and structured dataset will later be used for:
-
--   **Power BI dashboards**
--   **Machine Learning models**
-
-------------------------------------------------------------------------
-
-# Database Architecture
-
-The database models a typical **e‑commerce transaction system**
-including:
+The project models a fictional online store **Novacart**, covering the
+full lifecycle of customer orders including:
 
 -   Customers
 -   Sellers
@@ -36,227 +20,216 @@ including:
 -   Shipping
 -   Inventory
 
-These tables are connected through **primary and foreign key
-relationships** to ensure referential integrity.
+This database serves as the **foundation for later stages**, where the
+cleaned data will be used in:
+
+-   Power BI dashboards
+-   Machine Learning models
 
 ------------------------------------------------------------------------
 
-# Entity Relationship Diagram
+# Database Schema
 
-Below is the schema used in the project.
+The database follows a **normalized relational schema** connecting
+customers, products, and orders.
 
-> Place the ERD image inside this folder with the name **erd.png**
+### Main Entities
 
-![Database ERD](erd.png)
+-   **Customers** -- Stores customer personal information.
+-   **Sellers** -- Represents sellers or suppliers.
+-   **Products** -- Catalog of products with price and category.
+-   **Category** -- Product categories.
+-   **Orders** -- Records customer purchases.
+-   **Order Items** -- Individual products inside each order.
+-   **Payments** -- Payment status of orders.
+-   **Shipping** -- Shipping and delivery details.
+-   **Inventory** -- Product stock levels in warehouses.
+
+### Entity Relationship Diagram
+
+Add the ER diagram image in this folder and reference it here:
+
+    /1_SQL_Database_Analysis/erd.png
 
 ------------------------------------------------------------------------
 
 # Database Tables
 
-## Category
+## Category Table
 
 Stores product categories.
 
   Column          Description
-  --------------- ------------------
-  category_id     Primary key
-  category_name   Name of category
+  --------------- -------------------
+  category_id     Unique identifier
+  category_name   Category name
 
-------------------------------------------------------------------------
-
-## Customers
+## Customers Table
 
   Column        Description
   ------------- ---------------------
-  customer_id   Primary key
+  customer_id   Unique customer ID
   first_name    Customer first name
   last_name     Customer last name
-  state         Customer location
+  state         Customer state
 
-------------------------------------------------------------------------
-
-## Sellers
+## Sellers Table
 
   Column      Description
-  ----------- ---------------
-  seller_id   Primary key
+  ----------- ------------------------
+  seller_id   Unique seller ID
   name        Seller name
-  origin      Seller origin
+  origin      Seller origin location
 
-------------------------------------------------------------------------
-
-## Products
+## Products Table
 
   Column         Description
-  -------------- --------------------
-  product_id     Primary key
-  product_name   Product name
-  price          Selling price
+  -------------- -------------------------
+  product_id     Unique product ID
+  product_name   Name of product
+  price          Product selling price
   cogs           Cost of goods sold
-  category_id    Category reference
+  category_id    Foreign key to category
 
-------------------------------------------------------------------------
-
-## Orders
+## Orders Table
 
   Column         Description
-  -------------- --------------------
-  order_id       Primary key
-  order_date     Date of order
-  customer_id    Customer reference
-  seller_id      Seller reference
-  order_status   Order status
+  -------------- -------------------------
+  order_id       Unique order ID
+  order_date     Date order placed
+  customer_id    Customer placing order
+  seller_id      Seller fulfilling order
+  order_status   Status of order
 
-------------------------------------------------------------------------
-
-## Order Items
+## Order Items Table
 
   Column           Description
   ---------------- --------------------
-  order_item_id    Primary key
-  order_id         Order reference
-  product_id       Product reference
+  order_item_id    Unique order item
+  order_id         Associated order
+  product_id       Purchased product
   quantity         Quantity purchased
-  price_per_unit   Unit price
+  price_per_unit   Price per unit
 
-------------------------------------------------------------------------
-
-## Payments
+## Payments Table
 
   Column           Description
-  ---------------- -----------------
-  payment_id       Primary key
-  order_id         Order reference
-  payment_date     Date of payment
+  ---------------- --------------------
+  payment_id       Payment identifier
+  order_id         Related order
+  payment_date     Date payment made
   payment_status   Payment result
 
-------------------------------------------------------------------------
-
-## Shipping
+## Shipping Table
 
   Column              Description
-  ------------------- -------------------------
-  shipping_id         Primary key
-  order_id            Order reference
-  shipping_provider   Delivery service
+  ------------------- ---------------------------
+  shipping_id         Shipping ID
+  order_id            Order being shipped
+  shipping_provider   Delivery provider
   ship_date           Shipping date
   delivery_date       Delivery date
   shipping_status     Delivered / Returned
-  return_date         Return date if returned
+  return_date         Return date if applicable
 
-------------------------------------------------------------------------
-
-## Inventory
+## Inventory Table
 
   Column            Description
-  ----------------- ---------------------
-  inventory_id      Primary key
+  ----------------- ----------------------
+  inventory_id      Inventory record
   product_id        Product reference
-  stock_remaining   Remaining inventory
-  warehouse_id      Warehouse ID
-  re_stock_date     Restock date
+  stock_remaining   Current stock
+  warehouse_id      Warehouse identifier
+  re_stock_date     Last restock date
 
 ------------------------------------------------------------------------
 
 # Data Cleaning Process
 
-Several transformations were applied to improve data quality.
+The dataset required several preprocessing steps to ensure **data
+consistency and reliability**.
 
-## Payment Status Standardization
+### Payment Status Standardization
 
-Original inconsistent values were normalized.
+Different values were unified into consistent categories:
 
-Before: - pending - payment_failed - payment_success
+Original values: - pending - payment_failed - payment_success
 
-After: - refunded - failed - success
-
-------------------------------------------------------------------------
-
-## Removing Duplicate Records
-
-Duplicate shipping records were identified and removed using
-PostgreSQL's system column.
-
-Example:
-
-``` sql
-DELETE FROM shipping
-WHERE ctid NOT IN (
-    SELECT MIN(ctid)
-    FROM shipping
-    GROUP BY shipping_id
-);
-```
+Standardized values: - refunded - failed - success
 
 ------------------------------------------------------------------------
 
-## Shipping Status Normalization
+### Duplicate Removal
 
-Shipping statuses were standardized to two categories:
+Duplicate shipping and order records were removed using PostgreSQL
+system column **ctid**.
+
+------------------------------------------------------------------------
+
+### Shipping Status Normalization
+
+Shipping status values were standardized into two categories:
 
 -   delivered
 -   returned
 
-Approximately **7% of orders were randomly marked as returned** to
-simulate real‑world e‑commerce behavior.
+Returned orders were simulated using a random distribution to represent
+approximately **7% return rate**.
 
 ------------------------------------------------------------------------
 
-## Return Date Generation
+### Return Date Generation
 
-A return date column was introduced.
+A **return_date column** was added and populated only for returned
+orders.
 
-``` sql
-ALTER TABLE shipping
-ADD COLUMN return_date DATE;
-```
+    ALTER TABLE shipping
+    ADD COLUMN return_date DATE;
 
-Return dates were generated relative to delivery date.
+Returned orders received a randomly generated return date based on
+delivery date.
 
 ------------------------------------------------------------------------
 
-# Data Validation Checks
+### Data Validation Checks
 
-Several rules were verified to ensure logical data relationships.
+Several checks were performed to ensure data integrity.
 
-### Delivery cannot occur before shipping
+#### Delivery cannot occur before shipping
 
-``` sql
-SELECT *
-FROM shipping
-WHERE delivery_date < ship_date;
-```
+    SELECT *
+    FROM shipping
+    WHERE delivery_date < ship_date;
 
-### Payments cannot occur before order date
+#### Payments cannot occur before order date
 
-``` sql
-SELECT p.*
-FROM payments p
-JOIN orders o
-ON p.order_id = o.order_id
-WHERE p.payment_date < o.order_date;
-```
+    SELECT *
+    FROM payments p
+    JOIN orders o
+    ON p.order_id = o.order_id
+    WHERE p.payment_date < o.order_date;
 
-Incorrect values were corrected.
+Any invalid values were corrected accordingly.
 
 ------------------------------------------------------------------------
 
 # Data Integrity Improvements
 
-Foreign key constraints were strengthened.
+To maintain relational integrity:
+
+-   Foreign key constraints were enforced.
+-   Cascading deletes were implemented.
 
 Example:
 
-``` sql
-ALTER TABLE shipping
-ADD CONSTRAINT shipping_order_fk
-FOREIGN KEY (order_id)
-REFERENCES orders(order_id)
-ON DELETE CASCADE;
-```
+    ALTER TABLE shipping
+    ADD CONSTRAINT shipping_order_fk
+    FOREIGN KEY (order_id)
+    REFERENCES orders(order_id)
+    ON DELETE CASCADE;
 
-This ensures related records are deleted automatically when an order is
-removed.
+This ensures that when an order is deleted, its associated shipping
+records are also removed.
 
 ------------------------------------------------------------------------
 
@@ -286,28 +259,30 @@ removed.
 
 ------------------------------------------------------------------------
 
-# Future Project Phases
+# Next Steps
 
-## Phase 2 -- Power BI Dashboard
+This SQL database will be used for the next stages of the project:
 
-Interactive dashboards will be built to analyze:
+### Phase 2 -- Business Intelligence
 
--   Sales trends
+Building **interactive dashboards in Power BI** to analyze:
+
+-   Sales performance
 -   Customer behavior
 -   Product performance
--   Return patterns
+-   Return trends
 
-## Phase 3 -- Machine Learning
+### Phase 3 -- Machine Learning
 
-Planned models:
+Applying predictive models for:
 
 -   Customer segmentation
--   Demand forecasting
--   Return prediction
+-   Sales forecasting
+-   Product demand prediction
 
 ------------------------------------------------------------------------
 
 # Author
 
 **Vishva Jayasinghe**\
-Aspiring Data Analyst
+Data Analytics Enthusiast
