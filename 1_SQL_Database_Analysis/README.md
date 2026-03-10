@@ -1,3 +1,4 @@
+[README.md](https://github.com/user-attachments/files/25873644/README.md)
 E-Commerce Database Project – SQL
 Project Overview
 
@@ -33,9 +34,13 @@ Data integrity checks
 
 ER Diagram
 
-<img width="1040" height="598" alt="erd" src="https://github.com/user-attachments/assets/90d258c4-0756-4217-904e-71db4b0fc90c" />
+(Add ER Diagram Screenshot Here)
 
+Example:
 
+![ER Diagram](erd.png)
+
+Upload your ER diagram screenshot into the repository and place it here.
 
 Database Schema Creation
 Category Table
@@ -43,7 +48,7 @@ DROP TABLE IF EXISTS category CASCADE;
 
 CREATE TABLE category (
 category_id INT PRIMARY KEY,
-category_name VARCHAR(50)
+category_name VARCHAR (50)
 );
 Customers Table
 DROP TABLE IF EXISTS customers;
@@ -72,7 +77,7 @@ price FLOAT,
 cogs FLOAT,
 category_id INT,
 
-CONSTRAINT product_fk_category
+CONSTRAINT product_fk_category 
 FOREIGN KEY(category_id)
 REFERENCES category(category_id)
 );
@@ -97,18 +102,18 @@ REFERENCES sellers(seller_id)
 Order Items Table
 DROP TABLE IF EXISTS order_items;
 
-CREATE TABLE order_items(
+CREATE TABLE order_items (
 order_item_id INT PRIMARY KEY,
 order_id INT,
 product_id INT,
 quantity INT,
 price_per_unit FLOAT,
 
-CONSTRAINT order_items_orders_fk
+CONSTRAINT order_items_orders_fk 
 FOREIGN KEY(order_id)
 REFERENCES orders(order_id),
 
-CONSTRAINT order_items_products_fk
+CONSTRAINT order_items_products_fk 
 FOREIGN KEY(product_id)
 REFERENCES products(product_id)
 );
@@ -122,7 +127,7 @@ payment_date DATE,
 payment_status VARCHAR(50),
 
 CONSTRAINT payment_orders_fk
-FOREIGN KEY(order_id)
+FOREIGN KEY(order_id) 
 REFERENCES orders(order_id)
 );
 Shipping Table
@@ -178,12 +183,11 @@ UPDATE payments
 SET payment_status = 'success'
 WHERE payment_status = 'payment_success';
 
-Check values
+Check distinct values
 
 SELECT DISTINCT payment_status
 FROM payments;
 Removing Duplicate Records
-Shipping Table
 SELECT shipping_id, COUNT(*)
 FROM shipping
 GROUP BY shipping_id
@@ -243,69 +247,6 @@ FROM orders o
 LEFT JOIN payments p
 ON o.order_id = p.order_id
 WHERE p.order_id IS NULL;
-Foreign Key Improvements
-ALTER TABLE shipping
-DROP CONSTRAINT shipping_order_fk;
-
-ALTER TABLE shipping
-ADD CONSTRAINT shipping_order_fk
-FOREIGN KEY(order_id)
-REFERENCES orders(order_id)
-ON DELETE CASCADE;
-
-Test
-
-DELETE FROM orders WHERE order_id = 7;
-
-Add cascade to payments
-
-ALTER TABLE payments
-ADD CONSTRAINT payments_order_fk
-FOREIGN KEY(order_id)
-REFERENCES orders(order_id)
-ON DELETE CASCADE;
-Integrity Testing
-
-Check payments without orders
-
-SELECT *
-FROM payments
-WHERE order_id NOT IN (
-SELECT order_id FROM orders
-);
-Payment Date Validation
-
-Payments should not occur before order date.
-
-SELECT p.*
-FROM payments p
-JOIN orders o
-ON p.order_id = o.order_id
-WHERE p.payment_date < o.order_date;
-
-Fix invalid dates
-
-UPDATE payments p
-SET payment_date = o.order_date
-FROM orders o
-WHERE p.order_id = o.order_id
-AND p.payment_date < o.order_date;
-Orders Table Cleaning
-
-Remove duplicates
-
-DELETE FROM orders
-WHERE ctid NOT IN (
-SELECT MIN(ctid)
-FROM orders
-GROUP BY order_id
-);
-
-Validate order dates
-
-SELECT *
-FROM orders
-WHERE order_date > CURRENT_DATE;
 SQL Skills Demonstrated
 
 Database schema design
@@ -333,4 +274,4 @@ pgAdmin
 Author
 
 Vishva Suraj
-Aspiring Data Analyst | SQL | Data Analysis | Database Design
+Aspiring Data Analyst
