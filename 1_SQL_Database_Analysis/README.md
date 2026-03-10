@@ -1,254 +1,129 @@
-# NovaCart E-Commerce SQL Analytics Project
+# E-Commerce Data Analytics Project (PostgreSQL + BI Ready)
 
 ## Project Overview
 
-NovaCart is a simulated **E-commerce analytics system** built to demonstrate real-world SQL skills used by **Data Analysts, BI Developers, and Data Engineers**.
+This project simulates a **real-world e-commerce analytics workflow** using PostgreSQL.
 
-This project focuses on:
+It covers the full analytics lifecycle:
 
-* Relational **database design**
-* **Data cleaning and validation**
-* Solving **real business problems using SQL**
-* **Sales, customer, product, and operational analytics**
+- Database schema design
+- Data modeling
+- Data cleaning
+- Business analysis using SQL
+- Preparing the data for BI tools such as Power BI
 
-The database represents an online marketplace where:
+The goal of this project is to demonstrate **professional SQL and analytical skills required for Data Analyst / BI Developer roles.**
 
-* Customers purchase products
-* Sellers provide products
-* Orders are processed
-* Payments are made
-* Shipping providers deliver products
-* Inventory is managed
+---
 
-This project demonstrates the type of SQL analysis expected in **professional data analytics roles**.
+# Database Architecture
+
+The database is designed using a **relational data model** for an e-commerce system.
+
+Main entities include:
+
+- Customers
+- Sellers
+- Products
+- Categories
+- Orders
+- Order Items
+- Payments
+- Shipping
+- Inventory
+
+Each table is connected using **Primary Keys and Foreign Keys** to maintain referential integrity.
 
 ---
 
 # Entity Relationship Diagram
 
-Add your ER diagram image in the repository and reference it here:
+Add your ER diagram screenshot inside the project folder and reference it like this:
 
+```markdown
+![ER Diagram](er_diagram.png)
 ```
-![ER Diagram](ERD.png)
-```
+
+Example:
+
+![ER Diagram](er_diagram.png)
 
 ---
 
 # Database Schema
 
-The database contains **9 relational tables**:
+## Core Tables
 
-| Table       | Description            |
-| ----------- | ---------------------- |
-| category    | Product categories     |
-| customers   | Customer information   |
-| sellers     | Seller details         |
-| products    | Product catalog        |
-| orders      | Customer orders        |
-| order_items | Products inside orders |
-| payments    | Payment transactions   |
-| shipping    | Shipping details       |
-| inventory   | Warehouse inventory    |
+| Table | Description |
+|------|-------------|
+| category | Stores product categories |
+| customers | Stores customer information |
+| sellers | Stores seller information |
+| products | Product catalog |
+| orders | Customer orders |
+| order_items | Products included in each order |
+| payments | Payment transactions |
+| shipping | Shipping and delivery details |
+| inventory | Product stock tracking |
 
 ---
 
-# Table Creation & Data Modeling
+# Data Cleaning Process
+
+Several data quality improvements were implemented.
+
+## 1. Standardizing Payment Status
+
+The payment status column contained inconsistent values.
+
+Standardization rules applied:
+
+- `pending` → `refunded`
+- `payment_failed` → `failed`
+- `payment_success` → `success`
+
+---
+
+## 2. Removing Duplicate Records
+
+Duplicate shipping records were identified using:
 
 ```sql
---CREATE category table
-DROP TABLE IF EXISTS category CASCADE;
-
-CREATE TABLE category (
-category_id INT PRIMARY KEY,
-category_name VARCHAR (50)
-);
-
---customers table
-DROP TABLE IF EXISTS customers;
-
-CREATE TABLE customers (
-customer_id INT PRIMARY KEY,
-first_name VARCHAR(20),
-last_name VARCHAR(20),
-state VARCHAR(20)
-);
-
---sellers table
-DROP TABLE IF EXISTS sellers;
-
-CREATE TABLE sellers (
-seller_id INT PRIMARY KEY,
-name VARCHAR(25),
-origin VARCHAR(30)
-);
-
---products table
-DROP TABLE IF EXISTS products;
-
-CREATE TABLE products(
-product_id INT PRIMARY KEY,
-product_name VARCHAR(75),
-price FLOAT,
-cogs FLOAT,
-category_id INT,
-CONSTRAINT product_fk_category
-FOREIGN KEY(category_id)
-REFERENCES category(category_id)
-);
-
---orders table
-DROP TABLE IF EXISTS orders;
-
-CREATE TABLE orders(
-order_id INT PRIMARY KEY,
-order_date DATE,
-customer_id INT,
-seller_id INT,
-order_status VARCHAR(50),
-
-CONSTRAINT orders_customers_fk
-FOREIGN KEY(customer_id)
-REFERENCES customers(customer_id),
-
-CONSTRAINT sellers_orders_fk
-FOREIGN KEY(seller_id)
-REFERENCES sellers(seller_id)
-);
-
---order_items table
-DROP TABLE IF EXISTS order_items;
-
-CREATE TABLE order_items (
-order_item_id INT PRIMARY KEY,
-order_id INT,
-product_id INT,
-quantity INT,
-price_per_unit FLOAT,
-
-CONSTRAINT order_items_orders_fk
-FOREIGN KEY(order_id)
-REFERENCES orders(order_id),
-
-CONSTRAINT order_items_products_fk
-FOREIGN KEY(product_id)
-REFERENCES products(product_id)
-);
-
---payments table
-DROP TABLE IF EXISTS payments;
-
-CREATE TABLE payments(
-payment_id INT PRIMARY KEY,
-order_id INT,
-payment_date DATE ,
-payment_status VARCHAR(50),
-
-CONSTRAINT payment_orders_fk
-FOREIGN KEY(order_id)
-REFERENCES orders(order_id)
-);
-
---shipping table
-DROP TABLE IF EXISTS shipping;
-
-CREATE TABLE shipping(
-shipping_id INT PRIMARY KEY,
-order_id INT,
-shipping_provider VARCHAR(50),
-ship_date DATE,
-delivery_date DATE,
-shipping_status VARCHAR(50),
-
-CONSTRAINT shipping_order_fk
-FOREIGN KEY(order_id)
-REFERENCES orders(order_id)
-);
-
---inventory table
-DROP TABLE IF EXISTS inventory;
-
-CREATE TABLE inventory(
-inventory_id INT PRIMARY KEY,
-product_id INT,
-stock_remaining INT,
-warehouse_id INT,
-re_stock_date DATE,
-
-CONSTRAINT inventory_products_fk
-FOREIGN KEY(product_id)
-REFERENCES products(product_id)
-);
-```
-
----
-
-# Data Cleaning & Data Validation
-
-Before performing analytics, several **data cleaning steps** were performed to ensure data accuracy and integrity.
-
----
-
-## Standardizing Payment Status
-
-```sql
-UPDATE payments
-SET payment_status = 'refunded'
-WHERE payment_status = 'pending';
-
-UPDATE payments
-SET payment_status = 'failed'
-WHERE payment_status = 'payment_failed';
-
-UPDATE payments
-SET payment_status = 'success'
-WHERE payment_status = 'payment_success';
-```
-
----
-
-## Removing Duplicate Shipping Records
-
-```sql
-DELETE FROM shipping
-WHERE ctid NOT IN (
-SELECT MIN(ctid)
+SELECT shipping_id, COUNT(*)
 FROM shipping
 GROUP BY shipping_id
-);
+HAVING COUNT(*) > 1;
 ```
+
+Duplicates were removed using PostgreSQL's **ctid system column**.
 
 ---
 
-## Adding Return Tracking
+## 3. Shipping Table Improvements
+
+A new column was added to track returned orders.
 
 ```sql
 ALTER TABLE shipping
 ADD COLUMN return_date DATE;
 ```
 
----
+Shipping statuses were standardized:
 
-## Simulating Product Returns
+- delivered
+- returned
 
-```sql
-UPDATE shipping
-SET shipping_status = 'returned'
-WHERE random() < 0.07;
-
-UPDATE shipping
-SET return_date = delivery_date + (floor(random()*10)+1)::int
-WHERE shipping_status = 'returned';
-
-UPDATE shipping
-SET return_date = NULL
-WHERE shipping_status = 'delivered';
-```
+Returned orders were assigned **random return dates**.
 
 ---
 
-## Data Validation Checks
+## 4. Data Validation Rules
 
-### Delivery cannot happen before shipping
+Several checks were performed to maintain data integrity.
+
+Examples:
+
+### Delivery date must be after shipping date
 
 ```sql
 SELECT *
@@ -256,7 +131,7 @@ FROM shipping
 WHERE delivery_date < ship_date;
 ```
 
-### Payment cannot occur before order date
+### Payment date must not be before order date
 
 ```sql
 SELECT p.*
@@ -268,178 +143,136 @@ WHERE p.payment_date < o.order_date;
 
 ---
 
-# Business Problems Solved
+# Business Analytics Problems Solved
 
-This project answers **20 real-world business analytics questions** commonly asked in data analyst roles.
+This project solves **20 real-world business problems using SQL.**
 
 ---
 
-# Sales Analysis
+# Sales & Revenue Analysis
 
-### 1. Top 10 selling products by revenue
-
-Identify the products generating the highest sales.
-
-### 2. Revenue contribution by product category
-
-Determine which categories generate the largest share of revenue.
-
-### 3. Average order value by customer
-
-Calculate AOV for customers with more than 5 orders.
-
-### 4. Monthly sales trend
-
-Analyze revenue trends month over month.
+1. Top 10 selling products by revenue  
+2. Revenue contribution by product category  
+3. Customer average order value  
+4. Monthly sales trend analysis  
 
 ---
 
 # Customer Analytics
 
-### 5. Customers with no purchases
+5. Customers with no purchases  
+6. Customer lifetime value ranking  
+7. Customer retention within 30 days  
+8. Customer purchase behavior  
 
-Identify registered customers who never made an order.
+---
 
-### 6. Customer Lifetime Value (CLTV)
+# Seller Performance
 
-Rank customers based on their total lifetime purchase value.
-
-### 7. Customer retention analysis
-
-Find customers who made repeat purchases within **30 days**.
-
-### 8. Customer classification
-
-Categorize customers as **new or returning** based on return behavior.
+9. Top performing sellers  
+10. Seller successful order ratio  
+11. Sellers inactive for the last 4 months  
 
 ---
 
 # Product & Inventory Insights
 
-### 9. Low inventory products
-
-Identify products with **stock below threshold**.
-
-### 10. Profit margin analysis
-
-Calculate profit margin per product.
-
-### 11. Product return analysis
-
-Identify products with the **highest return rates**.
-
-### 12. Cross-selling analysis
-
-Find products frequently purchased together.
+12. Products with low stock levels  
+13. Profit margin by product  
+14. Products with highest return rate  
 
 ---
 
-# Operational Insights
+# Logistics & Operations
 
-### 13. Shipping delays
-
-Find orders where shipping occurred **more than 7 days after order date**.
-
-### 14. Revenue by shipping provider
-
-Analyze shipping provider performance.
-
-### 15. Seller performance
-
-Identify top sellers and their success rate.
-
-### 16. Inactive sellers
-
-Find sellers without sales in the last **4 months**.
+15. Orders shipped later than 7 days  
+16. Revenue handled by each shipping provider  
+17. Average delivery time per provider  
 
 ---
 
-# Market Insights
+# Advanced Analytics
 
-### 17. Best selling category by state
-
-Understand regional product demand.
-
-### 18. Top customers by state
-
-Identify most active customers regionally.
-
-### 19. Revenue decline analysis
-
-Find products with **decreasing revenue compared to last year**.
-
-### 20. Product bundle analysis
-
-Identify product combinations frequently purchased together.
+18. Year-over-year revenue decrease analysis  
+19. Customer repeat purchases within 30 days  
+20. Product cross-selling analysis  
 
 ---
 
-# Example Analytical Query
+# Advanced SQL Concepts Used
 
-Top selling products by revenue.
+This project demonstrates several **professional SQL techniques**:
 
-```sql
-SELECT oi.product_id,
-p.product_name,
-SUM(oi.total_sale) AS total_sales_per_product
-FROM order_items oi
-JOIN products p
-ON oi.product_id = p.product_id
-GROUP BY 1,2
-ORDER BY 3 DESC
-LIMIT 10;
-```
+### Window Functions
+
+- `RANK()`
+- `DENSE_RANK()`
+- `LAG()`
+- `LEAD()`
+
+### Common Table Expressions (CTEs)
+
+Used to break complex problems into readable steps.
+
+### Aggregations
+
+- SUM
+- COUNT
+- AVG
+- Conditional Aggregations
+
+### Complex Joins
+
+- Inner joins
+- Left joins
+- Self joins
+
+### Business KPI Calculations
+
+- Revenue
+- Customer Lifetime Value
+- Return Rate
+- Profit Margin
+- Sales Growth
 
 ---
 
 # Skills Demonstrated
 
-### SQL Skills
+This project highlights the following data analytics skills:
 
-* Complex Joins
-* Window Functions
-* CTEs
-* Aggregations
-* Data Cleaning
-* Data Validation
-
-### Analytics Skills
-
-* Customer Lifetime Value Analysis
-* Sales Trend Analysis
-* Product Performance Analysis
-* Inventory Monitoring
-* Customer Retention Analysis
-* Operational Metrics
+- Data Modeling
+- PostgreSQL Database Design
+- SQL Data Analysis
+- Data Cleaning
+- Business Intelligence Thinking
+- Analytical Problem Solving
+- Query Optimization
 
 ---
 
 # Tools Used
 
-* PostgreSQL
-* SQL
-* Data Modeling
-* Data Cleaning
-* Analytical Querying
+- PostgreSQL
+- SQL
+- pgAdmin
+- Power BI (for dashboard development)
 
 ---
 
-# Project Structure
+# Future Improvements
 
-```
-NovaCart-SQL-Analytics
-│
-├── table_creation_modeling.sql
-├── data_cleaning.sql
-├── business_question_solutions.sql
-├── ERD.png
-└── README.md
-```
+Potential improvements for this project:
+
+- Build a **Power BI dashboard**
+- Add **customer segmentation analysis**
+- Implement **demand forecasting using machine learning**
+- Create an **automated ETL pipeline**
 
 ---
 
 # Author
 
-SQL Data Analytics Portfolio Project
+**Vishva Suraj**
 
-Created to demonstrate **real-world SQL analytics capabilities for hiring managers and recruiters**.
+Aspiring **Data Analyst / BI Developer**
