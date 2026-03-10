@@ -1,277 +1,313 @@
-[README.md](https://github.com/user-attachments/files/25873644/README.md)
-E-Commerce Database Project – SQL
-Project Overview
+[novacart_sql_readme.md](https://github.com/user-attachments/files/25873721/novacart_sql_readme.md)
+# Novacart E‑commerce Data Analytics Project -- SQL Analysis
 
-This project demonstrates the design, data cleaning, and validation of an E-Commerce relational database using PostgreSQL.
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue)
+![SQL](https://img.shields.io/badge/Language-SQL-green)
+![Project](https://img.shields.io/badge/Project-Data%20Analytics-orange)
 
-The system models the core operations of an online store including:
+## Overview
 
-Customers
+This repository contains the **SQL phase of an end‑to‑end data analytics
+project** built for a fictional e‑commerce company **Novacart**.
 
-Sellers
+The objective of this stage is to:
 
-Products
+-   Design a relational database schema
+-   Perform data cleaning and validation
+-   Prepare structured data for analytics and BI tools
 
-Orders
+The cleaned and structured dataset will later be used for:
 
-Payments
+-   **Power BI dashboards**
+-   **Machine Learning models**
 
-Shipping
+------------------------------------------------------------------------
 
-Inventory
+# Database Architecture
 
-Categories
+The database models a typical **e‑commerce transaction system**
+including:
 
-The project includes:
+-   Customers
+-   Sellers
+-   Products
+-   Orders
+-   Payments
+-   Shipping
+-   Inventory
 
-Database schema design
+These tables are connected through **primary and foreign key
+relationships** to ensure referential integrity.
 
-Table creation with primary and foreign keys
+------------------------------------------------------------------------
 
-Data cleaning and validation queries
+# Entity Relationship Diagram
 
-Data integrity checks
+Below is the schema used in the project.
 
-ER Diagram
+> Place the ERD image inside this folder with the name **erd.png**
 
-(Add ER Diagram Screenshot Here)
+![Database ERD](erd.png)
+
+------------------------------------------------------------------------
+
+# Database Tables
+
+## Category
+
+Stores product categories.
+
+  Column          Description
+  --------------- ------------------
+  category_id     Primary key
+  category_name   Name of category
+
+------------------------------------------------------------------------
+
+## Customers
+
+  Column        Description
+  ------------- ---------------------
+  customer_id   Primary key
+  first_name    Customer first name
+  last_name     Customer last name
+  state         Customer location
+
+------------------------------------------------------------------------
+
+## Sellers
+
+  Column      Description
+  ----------- ---------------
+  seller_id   Primary key
+  name        Seller name
+  origin      Seller origin
+
+------------------------------------------------------------------------
+
+## Products
+
+  Column         Description
+  -------------- --------------------
+  product_id     Primary key
+  product_name   Product name
+  price          Selling price
+  cogs           Cost of goods sold
+  category_id    Category reference
+
+------------------------------------------------------------------------
+
+## Orders
+
+  Column         Description
+  -------------- --------------------
+  order_id       Primary key
+  order_date     Date of order
+  customer_id    Customer reference
+  seller_id      Seller reference
+  order_status   Order status
+
+------------------------------------------------------------------------
+
+## Order Items
+
+  Column           Description
+  ---------------- --------------------
+  order_item_id    Primary key
+  order_id         Order reference
+  product_id       Product reference
+  quantity         Quantity purchased
+  price_per_unit   Unit price
+
+------------------------------------------------------------------------
+
+## Payments
+
+  Column           Description
+  ---------------- -----------------
+  payment_id       Primary key
+  order_id         Order reference
+  payment_date     Date of payment
+  payment_status   Payment result
+
+------------------------------------------------------------------------
+
+## Shipping
+
+  Column              Description
+  ------------------- -------------------------
+  shipping_id         Primary key
+  order_id            Order reference
+  shipping_provider   Delivery service
+  ship_date           Shipping date
+  delivery_date       Delivery date
+  shipping_status     Delivered / Returned
+  return_date         Return date if returned
+
+------------------------------------------------------------------------
+
+## Inventory
+
+  Column            Description
+  ----------------- ---------------------
+  inventory_id      Primary key
+  product_id        Product reference
+  stock_remaining   Remaining inventory
+  warehouse_id      Warehouse ID
+  re_stock_date     Restock date
+
+------------------------------------------------------------------------
+
+# Data Cleaning Process
+
+Several transformations were applied to improve data quality.
+
+## Payment Status Standardization
+
+Original inconsistent values were normalized.
+
+Before: - pending - payment_failed - payment_success
+
+After: - refunded - failed - success
+
+------------------------------------------------------------------------
+
+## Removing Duplicate Records
+
+Duplicate shipping records were identified and removed using
+PostgreSQL's system column.
 
 Example:
 
-![ER Diagram](erd.png)
-
-Upload your ER diagram screenshot into the repository and place it here.
-
-Database Schema Creation
-Category Table
-DROP TABLE IF EXISTS category CASCADE;
-
-CREATE TABLE category (
-category_id INT PRIMARY KEY,
-category_name VARCHAR (50)
-);
-Customers Table
-DROP TABLE IF EXISTS customers;
-
-CREATE TABLE customers (
-customer_id INT PRIMARY KEY,
-first_name VARCHAR(20),
-last_name VARCHAR(20),
-state VARCHAR(20)
-);
-Sellers Table
-DROP TABLE IF EXISTS sellers;
-
-CREATE TABLE sellers (
-seller_id INT PRIMARY KEY,
-name VARCHAR(25),
-origin VARCHAR(30)
-);
-Products Table
-DROP TABLE IF EXISTS products;
-
-CREATE TABLE products(
-product_id INT PRIMARY KEY,
-product_name VARCHAR(75),
-price FLOAT,
-cogs FLOAT,
-category_id INT,
-
-CONSTRAINT product_fk_category 
-FOREIGN KEY(category_id)
-REFERENCES category(category_id)
-);
-Orders Table
-DROP TABLE IF EXISTS orders;
-
-CREATE TABLE orders(
-order_id INT PRIMARY KEY,
-order_date DATE,
-customer_id INT,
-seller_id INT,
-order_status VARCHAR(50),
-
-CONSTRAINT orders_customers_fk
-FOREIGN KEY(customer_id)
-REFERENCES customers(customer_id),
-
-CONSTRAINT sellers_orders_fk
-FOREIGN KEY(seller_id)
-REFERENCES sellers(seller_id)
-);
-Order Items Table
-DROP TABLE IF EXISTS order_items;
-
-CREATE TABLE order_items (
-order_item_id INT PRIMARY KEY,
-order_id INT,
-product_id INT,
-quantity INT,
-price_per_unit FLOAT,
-
-CONSTRAINT order_items_orders_fk 
-FOREIGN KEY(order_id)
-REFERENCES orders(order_id),
-
-CONSTRAINT order_items_products_fk 
-FOREIGN KEY(product_id)
-REFERENCES products(product_id)
-);
-Payments Table
-DROP TABLE IF EXISTS payments;
-
-CREATE TABLE payments(
-payment_id INT PRIMARY KEY,
-order_id INT,
-payment_date DATE,
-payment_status VARCHAR(50),
-
-CONSTRAINT payment_orders_fk
-FOREIGN KEY(order_id) 
-REFERENCES orders(order_id)
-);
-Shipping Table
-DROP TABLE IF EXISTS shipping;
-
-CREATE TABLE shipping(
-shipping_id INT PRIMARY KEY,
-order_id INT,
-shipping_provider VARCHAR(50),
-ship_date DATE,
-delivery_date DATE,
-shipping_status VARCHAR(50),
-
-CONSTRAINT shipping_order_fk
-FOREIGN KEY(order_id)
-REFERENCES orders(order_id)
-);
-Inventory Table
-DROP TABLE IF EXISTS inventory;
-
-CREATE TABLE inventory(
-inventory_id INT PRIMARY KEY,
-product_id INT,
-stock_remaining INT,
-warehouse_id INT,
-re_stock_date DATE,
-
-CONSTRAINT inventory_products_fk
-FOREIGN KEY(product_id)
-REFERENCES products(product_id)
-);
-Data Validation Queries
-SELECT * FROM category;
-SELECT * FROM customers;
-SELECT * FROM inventory;
-SELECT * FROM order_items;
-SELECT * FROM orders;
-SELECT * FROM payments;
-SELECT * FROM products;
-SELECT * FROM sellers;
-SELECT * FROM shipping;
-Data Cleaning Process
-Standardizing Payment Status
-UPDATE payments
-SET payment_status = 'refunded'
-WHERE payment_status = 'pending';
-
-UPDATE payments
-SET payment_status = 'failed'
-WHERE payment_status = 'payment_failed';
-
-UPDATE payments
-SET payment_status = 'success'
-WHERE payment_status = 'payment_success';
-
-Check distinct values
-
-SELECT DISTINCT payment_status
-FROM payments;
-Removing Duplicate Records
-SELECT shipping_id, COUNT(*)
-FROM shipping
-GROUP BY shipping_id
-HAVING COUNT(*) > 1;
-
-Delete duplicates
-
+``` sql
 DELETE FROM shipping
 WHERE ctid NOT IN (
-SELECT MIN(ctid)
-FROM shipping
-GROUP BY shipping_id
+    SELECT MIN(ctid)
+    FROM shipping
+    GROUP BY shipping_id
 );
-Shipping Table Enhancements
+```
 
-Add return date column
+------------------------------------------------------------------------
 
+## Shipping Status Normalization
+
+Shipping statuses were standardized to two categories:
+
+-   delivered
+-   returned
+
+Approximately **7% of orders were randomly marked as returned** to
+simulate real‑world e‑commerce behavior.
+
+------------------------------------------------------------------------
+
+## Return Date Generation
+
+A return date column was introduced.
+
+``` sql
 ALTER TABLE shipping
 ADD COLUMN return_date DATE;
+```
 
-Standardize shipping status
+Return dates were generated relative to delivery date.
 
-UPDATE shipping
-SET shipping_status = 'delivered'
-WHERE shipping_status IN ('in_transit','shipped');
+------------------------------------------------------------------------
 
-Randomly mark returned orders
+# Data Validation Checks
 
-UPDATE shipping
-SET shipping_status = 'returned'
-WHERE random() < 0.07;
+Several rules were verified to ensure logical data relationships.
 
-Generate return dates
+### Delivery cannot occur before shipping
 
-UPDATE shipping
-SET return_date = delivery_date + (floor(random()*10)+1)::int
-WHERE shipping_status = 'returned';
-
-Ensure delivered orders have no return date
-
-UPDATE shipping
-SET return_date = NULL
-WHERE shipping_status = 'delivered';
-Data Quality Checks
-
-Delivery cannot happen before shipping.
-
+``` sql
 SELECT *
 FROM shipping
 WHERE delivery_date < ship_date;
-Orders and Payments Integrity
+```
 
-Find orders without payments
+### Payments cannot occur before order date
 
-SELECT o.order_id
-FROM orders o
-LEFT JOIN payments p
-ON o.order_id = p.order_id
-WHERE p.order_id IS NULL;
-SQL Skills Demonstrated
+``` sql
+SELECT p.*
+FROM payments p
+JOIN orders o
+ON p.order_id = o.order_id
+WHERE p.payment_date < o.order_date;
+```
 
-Database schema design
+Incorrect values were corrected.
 
-Primary and foreign key relationships
+------------------------------------------------------------------------
 
-Data cleaning
+# Data Integrity Improvements
 
-Duplicate removal
+Foreign key constraints were strengthened.
 
-Data validation
+Example:
 
-Data integrity checks
+``` sql
+ALTER TABLE shipping
+ADD CONSTRAINT shipping_order_fk
+FOREIGN KEY (order_id)
+REFERENCES orders(order_id)
+ON DELETE CASCADE;
+```
 
-SQL updates and transformations
+This ensures related records are deleted automatically when an order is
+removed.
 
-Constraint management
+------------------------------------------------------------------------
 
-Tools Used
+# Technologies Used
 
-PostgreSQL
-SQL
-pgAdmin
+-   SQL
+-   PostgreSQL
+-   Relational Database Design
+-   Data Cleaning Techniques
 
-Author
+------------------------------------------------------------------------
 
-Vishva Suraj
+# Project Structure
+
+    Novacart-ecommerce-project
+    │
+    ├── 1_SQL_Database_Analysis
+    │   ├── database_schema.sql
+    │   ├── data_cleaning.sql
+    │   ├── business_queries.sql
+    │   ├── erd.png
+    │   └── README.md
+    │
+    ├── 2_PowerBI_Dashboard
+    │
+    └── 3_Machine_Learning
+
+------------------------------------------------------------------------
+
+# Future Project Phases
+
+## Phase 2 -- Power BI Dashboard
+
+Interactive dashboards will be built to analyze:
+
+-   Sales trends
+-   Customer behavior
+-   Product performance
+-   Return patterns
+
+## Phase 3 -- Machine Learning
+
+Planned models:
+
+-   Customer segmentation
+-   Demand forecasting
+-   Return prediction
+
+------------------------------------------------------------------------
+
+# Author
+
+**Vishva Jayasinghe**\
 Aspiring Data Analyst
