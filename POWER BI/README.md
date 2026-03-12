@@ -1,5 +1,4 @@
 
-[README (2).md](https://github.com/user-attachments/files/25935284/README.2.md)
 # 📊 NovaCart Analytics Dashboard (Power BI)
 
 A modern **E‑commerce Analytics Dashboard** built using **Microsoft
@@ -34,7 +33,8 @@ help stakeholders quickly understand business performance.
 
 *(Add dashboard screenshot here)*
 
-![Sales Overview Screenshot](screenshots/sales_overview.png)
+![Sales Overview Screenshot](screenshots<img width="781" height="439" alt="Sales_overview" src="https://github.com/user-attachments/assets/aa84a154-b2b7-44cf-b5ff-dd89779d9486" />
+/sales_overview.png)
 
 ### 📊 Key Performance Indicators (KPIs)
 
@@ -68,9 +68,7 @@ help stakeholders quickly understand business performance.
 
 # 2️⃣ Customer Behavior
 
-### 📸 Screenshot
-
-*(Add dashboard screenshot here)*
+### 📸 Screenshot<img width="859" height="481" alt="Customer_behavior" src="https://github.com/user-attachments/assets/1d44bb8f-aeac-45d0-a940-873a2216a3ed" />
 
 ![Customer Behavior Screenshot](screenshots/customer_behavior.png)
 
@@ -110,9 +108,7 @@ help stakeholders quickly understand business performance.
 
 # 3️⃣ Sellers & Shipping
 
-### 📸 Screenshot
-
-*(Add dashboard screenshot here)*
+<img width="860" height="483" alt="Sellers   Shipping" src="https://github.com/user-attachments/assets/816ab061-c290-4531-906b-aed067e33ed3" />
 
 ![Sellers and Shipping Screenshot](screenshots/sellers_shipping.png)
 
@@ -147,8 +143,7 @@ help stakeholders quickly understand business performance.
 
 ### 📸 Data Modeling Screenshot
 
-*(Add Power BI data model screenshot here)*
-
+<img width="1005" height="495" alt="data model" src="https://github.com/user-attachments/assets/b28cf7a2-ca1a-4784-b951-4cd48c209c03" />
 ![Data Model Screenshot](screenshots/data_model.png)
 
 The dashboard is powered by a structured **star-schema data model**,
